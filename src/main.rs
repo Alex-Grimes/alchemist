@@ -1,9 +1,10 @@
-use axum::{Extension, Router, extract::Path, http::StatusCode, routing::get, serve::Listener};
+use axum::{
+    Extension, Json, Router, extract::Path, http::StatusCode, routing::get, serve::Listener,
+};
 use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Postgres, pool, postgres::PgPoolOptions, types::Json};
+use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use tracing::{Level, info};
-use tracing_subscriber;
 
 #[derive(Serialize, Deserialize)]
 struct Post {
@@ -11,6 +12,13 @@ struct Post {
     user_id: Option<i32>,
     title: String,
     body: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct CreatePost {
+    title: String,
+    body: String,
+    user_id: Option<i32>,
 }
 
 #[tokio::main]
@@ -61,6 +69,24 @@ async fn get_post(
     .fetch_one(&pool)
     .await
     .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(Json(post))
+}
+
+async fn create_post(
+    Extension(pool): Extension<Pool<Postgres>>,
+    Json(new_post): Json<CreatePost>,
+) -> Result<Json<Post>, StatusCode> {
+    let post = sqlx::query_as!(
+    Post,
+        "INSERT INTO posts (user_id, title, body) VALUES ($1, $2, $3) RETURNING id, title, body, user_id",
+        new_post.user_id,
+        new_post.title,
+        new_post.body
+)
+        .fetch_one(&pool)
+        .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(Json(post))
 }
