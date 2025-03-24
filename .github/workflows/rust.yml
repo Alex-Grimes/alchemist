@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install SQLX
+      run: cargo install sqlx
     - name: Prep
       run: cargo sqlx prepare
     - name: Build
