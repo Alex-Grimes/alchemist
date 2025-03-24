@@ -7,42 +7,9 @@ use axum::{
     routing::{get, post},
 };
 use dotenvy::dotenv;
-use models::Post;
-use serde::{Deserialize, Serialize};
+use models::{CreatePost, CreateUser, Post, UpdatePost, User};
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use tracing::info;
-
-#[derive(Serialize, Deserialize)]
-struct CreatePost {
-    title: String,
-    body: String,
-    user_id: Option<i32>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct UpdatePost {
-    title: String,
-    body: String,
-    user_id: Option<i32>,
-}
-
-#[derive(Serialize)]
-struct Message {
-    message: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct CreateUser {
-    username: String,
-    email: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct User {
-    id: i32,
-    username: String,
-    email: String,
-}
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
