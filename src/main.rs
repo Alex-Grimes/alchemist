@@ -1,3 +1,5 @@
+mod models;
+
 use axum::{
     Extension, Json, Router,
     extract::Path,
@@ -5,17 +7,10 @@ use axum::{
     routing::{get, post},
 };
 use dotenvy::dotenv;
+use models::Post;
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use tracing::info;
-
-#[derive(Serialize, Deserialize)]
-struct Post {
-    id: i32,
-    user_id: Option<i32>,
-    title: String,
-    body: String,
-}
 
 #[derive(Serialize, Deserialize)]
 struct CreatePost {
