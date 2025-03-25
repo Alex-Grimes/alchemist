@@ -8,6 +8,7 @@ use axum::{
 };
 use dotenvy::dotenv;
 use handlers::posts::{create_post, delete_post, get_post, get_posts, update_post};
+use handlers::users::create_user;
 use models::{CreateUser, User};
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use tracing::info;
@@ -40,20 +41,4 @@ async fn main() -> Result<(), sqlx::Error> {
 
 async fn root() -> &'static str {
     "Hello, world!"
-}
-
-async fn create_user(
-    Extension(pool): Extension<Pool<Postgres>>,
-    Json(new_user): Json<CreateUser>,
-) -> Result<Json<User>, StatusCode> {
-    let user = sqlx::query_as!(
-        User,
-        "INSERT INTO users (username, email) VALUES ($1, $2) RETURNING id, username, email",
-        new_user.username,
-        new_user.email
-    )
-    .fetch_one(&pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    Ok(Json(user))
 }
