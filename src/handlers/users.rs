@@ -1,5 +1,5 @@
-use crate::models::CreateUser;
-use axum::{Extension, Json, extract::Path, http::StatusCode};
+use crate::models::{CreateUser, User};
+use axum::{Extension, Json, http::StatusCode};
 use sqlx::{Pool, Postgres};
 
 pub async fn create_user(
@@ -16,4 +16,14 @@ pub async fn create_user(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Json(user))
+}
+
+pub async fn get_users(
+    Extension(pool): Extension<Pool<Postgres>>,
+) -> Result<Json<Vec<User>>, StatusCode> {
+    let users = sqlx::query_as!(User, "SELECT id, username, email FROM users")
+        .fetch_all(&pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(users))
 }

@@ -1,16 +1,11 @@
 mod handlers;
 mod models;
 
-use axum::{
-    Extension, Json, Router,
-    http::StatusCode,
-    routing::{get, post},
-};
+use axum::{Extension, Router, routing::get};
 use dotenvy::dotenv;
 use handlers::posts::{create_post, delete_post, get_post, get_posts, update_post};
-use handlers::users::create_user;
-use models::{CreateUser, User};
-use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
+use handlers::users::{create_user, get_users};
+use sqlx::postgres::PgPoolOptions;
 use tracing::info;
 
 #[tokio::main]
@@ -24,7 +19,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     let app = Router::new()
         .route("/", get(root))
-        .route("/users", post(create_user))
+        .route("/users", get(get_users).post(create_user))
         .route("/posts", get(get_posts).post(create_post))
         .route(
             "/posts/{id}",
