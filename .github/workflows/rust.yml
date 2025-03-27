@@ -18,7 +18,7 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo "DATABASE_URL=env.DATABASE_URL >> .env
+          echo "DATABASE_URL=$env.DATABASE_URL" >> .env
           cat .env
       - name: Install SQLX
         run: cargo install sqlx-cli
@@ -28,3 +28,4 @@ jobs:
         run: cargo build --verbose
       - name: Run tests
         run: cargo test --verbose
+
